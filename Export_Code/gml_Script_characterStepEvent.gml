@@ -184,8 +184,6 @@ if global.spectator
         }
         moveTo(xVel, yVel)
     }
-    else
-        visible = false
     if global.beingAbsorbed
     {
         if (absorbTime == 1)
@@ -297,13 +295,6 @@ if global.spectator
             image_speed += 0.05
         if (kWalk && kDown && kDownPushedSteps == 0)
         {
-            if (image_speed == 0)
-            {
-                if (image_index != (image_number - 1))
-                    image_index += 1
-                else
-                    image_index = 0
-            }
             if (image_speed >= 0.05)
                 image_speed -= 0.05
             else if (image_speed < 0.05)
@@ -333,6 +324,26 @@ if global.spectator
             {
                 sprite_index = sHPickup
                 image_index = 0
+            }
+        }
+        if (kMissile && kUp && kUpPushedSteps == 0)
+        {
+            if (image_speed == 0)
+            {
+                if (image_index != (image_number - 1))
+                    image_index += 1
+                else
+                    image_index = 0
+            }
+        }
+        if (kMissile && kDown && kDownPushedSteps == 0)
+        {
+            if (image_speed == 0)
+            {
+                if (image_index != 0)
+                    image_index -= 1
+                else
+                    image_index = (image_number - 1)
             }
         }
         if (kMorph && kMorphPushedSteps == 0)

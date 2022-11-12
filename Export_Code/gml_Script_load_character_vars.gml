@@ -31,6 +31,7 @@ global.stanks = 0
 global.ptanks = 0
 global.lavastate = 0
 global.timeofday = 0
+global.coreReady = 0
 i = 100
 repeat (100)
 {
