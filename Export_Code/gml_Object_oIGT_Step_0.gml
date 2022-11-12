@@ -1,4 +1,4 @@
-var compl;
+var compl, yoff, i, displayString;
 if (!oControl.mod_IGT)
     instance_destroy()
 if (surface_exists(igt_surface) && surface_get_width(igt_surface) < (320 + oControl.widescreen_space))
@@ -20,9 +20,33 @@ if surface_exists(igt_surface)
     draw_cool_text(4, 16, steps_to_time2(global.gametime), c_black, c_white, c_gray, 1)
     if instance_exists(oClient)
     {
-        draw_cool_text(4, 27, ("ping: " + string(global.ping)), c_black, c_white, c_gray, 1)
+        yoff = 27
+        draw_cool_text(4, yoff, ("ping: " + string(global.ping)), c_black, c_white, c_gray, 1)
         if (global.saveStationCooldown > 0)
-            draw_cool_text(4, 38, ("Save Cooldown: " + string((global.saveStationCooldown / 60))), c_black, c_white, c_gray, 1)
+        {
+            yoff += 11
+            draw_cool_text(4, yoff, ("Save Cooldown: " + string((global.saveStationCooldown / 60))), c_black, c_white, c_gray, 1)
+        }
+        if (global.saxmode && global.sax)
+        {
+            yoff += 11
+            if global.coreReady
+                displayString = "Core Warp: Ready"
+            else
+                displayString = "Core Warp: Not Ready"
+            draw_cool_text(4, yoff, displayString, c_black, c_white, c_gray, 1)
+            for (i = 0; i <= 8; i++)
+            {
+                if (global.areaCount[i] > 0)
+                {
+                    yoff += 11
+                    displayString = ("Area " + string(i))
+                    displayString = (displayString + ": ")
+                    displayString = (displayString + string(global.areaCount[i]))
+                    draw_cool_text(4, yoff, displayString, c_black, c_white, c_gray, 1)
+                }
+            }
+        }
     }
     if (oControl.mod_collecteditemsmap == 1)
     {

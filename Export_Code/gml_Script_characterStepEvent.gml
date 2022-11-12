@@ -1,4 +1,4 @@
-var spr, f, arrPos, arrPosID, arrPosRoom, i, arrDraw, arrID, arrX, arrY, jump_vel, splash;
+var spr, f, arrPos, arrPosID, arrPosRoom, i, arrDraw, arrID, arrX, arrY, jump_vel, splash, specbuttons;
 if global.enablecontrol
     chStepControl()
 if global.movingobj
@@ -12,6 +12,8 @@ if (global.saxmode && (!global.lobbyLocked))
 }
 if (global.playerhealth <= 0 && global.sax && oCharacter.sprite_index != sCoreXSAX)
     global.playerhealth = 1
+if (!global.sax)
+    nofire = 0
 if (global.saxmode && global.sax && global.playerhealth == 1 && (!global.spectator) && global.lobbyLocked)
 {
     if (!global.mosaic)
@@ -108,22 +110,6 @@ if global.spectator
     if (global.spectatorIndex == -1)
     {
         visible = true
-        if (xVel == 0 && yVel == 0)
-            coreIdle++
-        else
-            coreIdle = 0
-        if (coreIdle > 60)
-        {
-            timer_x++
-            if (timer_x > ((2 * pi) / frequency_x))
-                timer_x -= ((2 * pi) / frequency_x)
-            timer_y++
-            if (timer_y > ((2 * pi) / frequency_y))
-                timer_y -= ((2 * pi) / frequency_y)
-            xx = (sin((timer_x * frequency_x)) * amplitude_x)
-            yy = (sin((timer_y * frequency_y)) * amplitude_y)
-            moveTo(xx, yy)
-        }
         maxSpectatorLeftSpeed = 0
         maxSpectatorRightSpeed = 0
         maxSpectatorUpSpeed = 0
@@ -139,8 +125,6 @@ if global.spectator
         }
         if (!global.sax)
         {
-            sprite_index = sMonitoad
-            image_speed = 0.25
             maxSpectatorLeftSpeed = -4
             maxSpectatorRightSpeed = 4
             maxSpectatorUpSpeed = -4
@@ -162,13 +146,14 @@ if global.spectator
                 maxSpectatorDownSpeed = 4
             }
         }
-        if (kLeft > 0)
+        specbuttons = (kWalk || kMissile)
+        if (kLeft > 0 && (!specbuttons))
             xVel -= 0.1
-        if (kRight > 0)
+        if (kRight > 0 && (!specbuttons))
             xVel += 0.1
-        if (kUp > 0)
+        if (kUp > 0 && (!specbuttons))
             yVel -= 0.1
-        if (kDown > 0)
+        if (kDown > 0 && (!specbuttons))
             yVel += 0.1
         if (xVel < maxSpectatorLeftSpeed)
             xVel = maxSpectatorLeftSpeed
@@ -282,6 +267,81 @@ if global.spectator
     }
     if (!global.sax)
     {
+        if (kWalk && kLeft && kLeftPushedSteps == 0)
+        {
+            if (sprite_index > sHPickup)
+            {
+                sprite_index -= 1
+                image_index = 0
+            }
+            else
+            {
+                sprite_index = sSpiderballFXOmega_fusion
+                image_index = 0
+            }
+        }
+        if (kWalk && kRight && kRightPushedSteps == 0)
+        {
+            if (sprite_index < sSpiderballFXOmega_fusion)
+            {
+                sprite_index += 1
+                image_index = 0
+            }
+            else
+            {
+                sprite_index = sHPickup
+                image_index = 0
+            }
+        }
+        if (kWalk && kUp && kUpPushedSteps == 0)
+            image_speed += 0.05
+        if (kWalk && kDown && kDownPushedSteps == 0)
+        {
+            if (image_speed == 0)
+            {
+                if (image_index != (image_number - 1))
+                    image_index += 1
+                else
+                    image_index = 0
+            }
+            if (image_speed >= 0.05)
+                image_speed -= 0.05
+            else if (image_speed < 0.05)
+                image_speed = 0
+        }
+        if (kMissile && kLeft)
+        {
+            if (sprite_index > sHPickup)
+            {
+                sprite_index -= 1
+                image_index = 0
+            }
+            else
+            {
+                sprite_index = sSpiderballFXOmega_fusion
+                image_index = 0
+            }
+        }
+        if (kMissile && kRight)
+        {
+            if (sprite_index < sSpiderballFXOmega_fusion)
+            {
+                sprite_index += 1
+                image_index = 0
+            }
+            else
+            {
+                sprite_index = sHPickup
+                image_index = 0
+            }
+        }
+        if (kMorph && kMorphPushedSteps == 0)
+        {
+            if (facing == RIGHT)
+                facing = LEFT
+            else
+                facing = RIGHT
+        }
         if (kJump && kJumpPushedSteps == 0 && spectatorSwapTimer == 0)
         {
             if instance_exists(oClient)
@@ -336,6 +396,14 @@ if global.spectator
                                     oCamera.x = global.camstartx
                                     oCamera.y = global.camstarty
                                     room_change(arrPosRoom, 1)
+                                }
+                                else
+                                {
+                                    global.offsetx = 0
+                                    global.offsety = 0
+                                    global.targetx = 0
+                                    global.targety = 0
+                                    room_goto(arrPosRoom)
                                 }
                             }
                             if (ds_list_size(oClient.roomListData) > 0)
@@ -818,44 +886,34 @@ if platformCharacterIs(IN_AIR)
 }
 if ((isCollisionBottom(1) || isCollisionPlatformBottom(1)) && platformCharacterIs(IN_AIR) && yVel >= 0)
 {
-    if (state == AIRBALL && ballfall >= 32)
+    yVel = 0
+    yAcc = 0
+    landing = 1
+    turning = 0
+    vjump = 1
+    canturn = 1
+    walljumping = 0
+    if (state != AIRBALL && speedboost == 0)
     {
-        yVel = -1.7
-        dash = 0
-        sfx_play(sndBallBounce)
-        ballbounce = 8
+        image_index = 0
+        state = STANDING
+        idle = 0
+        statetime = 0
+        xVel = 0
+        xAcc = 0
+        PlayLandingSound(get_floor_material())
     }
-    else
+    if (state == AIRBALL && sball == 0 && (!moverobj))
     {
-        yVel = 0
-        yAcc = 0
-        landing = 1
-        turning = 0
-        vjump = 1
-        canturn = 1
-        walljumping = 0
-        if (state != AIRBALL)
-        {
-            image_index = 0
-            state = STANDING
-            idle = 0
-            statetime = 0
-            xVel = 0
-            xAcc = 0
-            PlayLandingSound(get_floor_material())
-        }
-        if (state == AIRBALL && sball == 0 && (!moverobj))
-        {
-            state = BALL
-            statetime = 0
-            if (mockball == 0)
-            {
-                xVel = 0
-                xAcc = 0
-                dash = 0
-            }
-            sfx_play(sndCrouch)
-        }
+        state = BALL
+        statetime = 0
+        sfx_play(sndCrouch)
+    }
+    if (speedboost == 1 && state != BALL)
+    {
+        state = RUNNING
+        statetime = 100
+        dash = 30
     }
     if (sball == 0)
     {
@@ -929,6 +987,12 @@ if ((isCollisionLeft(1) && xVel < 0) || (isCollisionRight(1) && xVel > 0))
     if platformCharacterIs(IN_AIR)
         xAcc = 0
     jumpfwd = 0
+    if (speedboost == 1 && vjump == 0 && platformCharacterIs(IN_AIR))
+    {
+        charge = 120
+        sfx_stop(sndSBChargeLoop)
+        sfx_loop(sndSBChargeLoop)
+    }
 }
 if ((state == STANDING || state == DUCKING || state == RUNNING) && charge > 0 && ((inwater == 0 && waterfall == 0) || global.currentsuit == 2) && kJump && kJumpPushedSteps == 0 && kLeft == 0 && kRight == 0)
 {
@@ -1250,6 +1314,30 @@ if (state == SUPERJUMP)
         xVel = -7.5
         yVel = -3.5
         facing = LEFT
+    }
+    if (kWalk > 0)
+    {
+        if (sjball == 0)
+            state = RUNNING
+        else
+            state = BALL
+        speedboost = 1
+        dash = 30
+        statetime = 100
+        sfx_stop(sndSJLoop)
+        if (sjdir == 0)
+        {
+            if (kLeft > 0)
+            {
+                xVel = -7.4
+                facing = LEFT
+            }
+            if (kRight > 0)
+            {
+                xVel = 7.4
+                facing = RIGHT
+            }
+        }
     }
     if ((sjdir != 0 && facing == RIGHT && isCollisionRightSlope(0)) || (facing == LEFT && isCollisionLeftSlope(0)))
     {
@@ -2815,6 +2903,28 @@ if (state == SUPERJUMP)
     xFric = 1
 if (state == BALL)
 {
+    if (kDownPushedSteps == 180 && global.sax && global.saxmode)
+    {
+        if (!global.coreReady)
+        {
+            global.corePosx = x
+            global.corePosy = y
+            global.corePosRoom = room
+            global.coreReady = 1
+            oControl.kDownPushedSteps = 0
+            audio_play_sound(sndXMorph1, 10, false)
+        }
+        else
+        {
+            global.targetx = global.corePosx
+            global.targety = global.corePosy
+            global.offsetx = 0
+            global.offsety = 0
+            global.coreReady = 0
+            oControl.kDownPushedSteps = 0
+            room_goto(global.corePosRoom)
+        }
+    }
     if (dash == 0)
         xFric = (frictionRunningX * 2)
     if (dash > 0 && dash <= 30)
@@ -3707,7 +3817,7 @@ if (state == JUMPING)
 else
     airtime = 0
 if (global.speedbooster && state == RUNNING && (kLeft > 0 || kRight > 0) && turning == 0)
-    speedboost_steps += 1
+    speedboost_steps += 6
 else
     speedboost_steps = 0
 if (speedboost_steps > 0 && state != RUNNING)

@@ -1,4 +1,4 @@
-var mosaicEffect, size, type, alignment, bufferSize, result;
+var mosaicEffect, size, type, alignment, bufferSize, result, sax;
 mosaicEffect = 0
 if sameRoom
 {
@@ -21,6 +21,9 @@ if sameRoom
             else
                 mosaicEffect = 0
             buffer_delete(buffer)
+            sax = global.sax
+            if (global.spectator && (!global.sax) && global.saxmode)
+                sax = 2
             size = 1024
             type = buffer_grow
             alignment = 1
@@ -47,7 +50,7 @@ if sameRoom
             buffer_write(buffer, buffer_s8, oCharacter.fxtimer)
             buffer_write(buffer, buffer_s16, global.roomPrev)
             buffer_write(buffer, buffer_s8, oCharacter.state)
-            buffer_write(buffer, buffer_s8, global.sax)
+            buffer_write(buffer, buffer_s8, sax)
             buffer_write(buffer, buffer_s8, oCharacter.speedboost)
             buffer_write(buffer, buffer_s8, oCharacter.sjball)
             buffer_write(buffer, buffer_s8, oCharacter.sjdir)
@@ -82,7 +85,7 @@ if sameRoom
             buffer_write(buffer, buffer_s8, oCharacter.fxtimer)
             buffer_write(buffer, buffer_s16, global.roomPrev)
             buffer_write(buffer, buffer_s8, oCharacter.state)
-            buffer_write(buffer, buffer_s8, global.sax)
+            buffer_write(buffer, buffer_s8, sax)
             buffer_write(buffer, buffer_s8, oCharacter.speedboost)
             buffer_write(buffer, buffer_s8, oCharacter.sjball)
             buffer_write(buffer, buffer_s8, oCharacter.sjdir)

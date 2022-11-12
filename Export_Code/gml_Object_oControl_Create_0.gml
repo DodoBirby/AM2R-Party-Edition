@@ -8,6 +8,11 @@ screen_surface = -1
 global.lastroom = room
 global.targetroom = 0
 black = 0
+global.corePosx = 0
+global.corePosy = 0
+global.corePosRoom = 0
+global.coreReady = 0
+global.areaCount[8] = 0
 global.classicmode = 0
 global.godmode = 0
 global.enablecontrol = 1
@@ -256,7 +261,7 @@ if file_exists("lang/fonts/Glasstown_NBP.ttf")
 ini_close()
 global.fontVersion = font_add_sprite_ext(sVersionFont, "V.0123456789", 1, 1)
 global.am2r_version = "V1.5.2"
-global.multitroid_version = "UV1.6.1"
+global.multitroid_version = "UP1.6.1"
 global.gamestarted = 0
 global.wave_height = 1
 global.sand_map = ds_map_create()

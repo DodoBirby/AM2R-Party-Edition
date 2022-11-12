@@ -15,5 +15,7 @@ load_character_vars()
 file_delete((((working_directory + "\multitroid\random") + string((global.saveslot + 1))) + ".ini"))
 file_delete((((working_directory + "\multitroid\save") + string((global.saveslot + 1))) + ".dat"))
 scr_newgame()
+global.item[7] = 1
+global.speedbooster = 1
 save_game(((working_directory + "\multitroid\save") + string((global.saveslot + 1))))
 room_change(global.start_room, 0)

@@ -1,4 +1,4 @@
-var scaleMult, f, arrList, ID, _x, _y, xoffNew, lowestPosX, lowestPosY, enemyCount, i, arrData, xDiff, yDiff, sax, spectator, playerState, lowestDist, dist, combatState, playerVisible;
+var scaleMult, f, arrList, ID, _x, _y, xoffNew, lowestPosX, lowestPosY, enemyCount, i, arrData, xDiff, yDiff, sax, spectator, playerState, lowestDist, dist, combatState, playerVisible, clientRoom, areaString, areaCode, j;
 if (global.classicmode == 0 && global.opshowhud)
 {
     xoff = 33
@@ -537,9 +537,19 @@ if (global.classicmode == 0 && global.opshowhud)
         draw_gui_map((276 + widescreen_space), 0)
         if instance_exists(oClient)
         {
+            for (j = 0; j <= 8; j++)
+                global.areaCount[j] = 0
             for (i = 0; i < ds_list_size(oClient.posData); i++)
             {
                 arrData = ds_list_find_value(oClient.posData, i)
+                clientRoom = arrData[4]
+                areaString = room_get_name(clientRoom)
+                areaCode = string_digits(string_char_at(areaString, 5))
+                if (string_length(areaCode) > 0)
+                {
+                    areaCode = real(areaCode)
+                    global.areaCount[areaCode] += 1
+                }
                 xDiff = (oClient.posX - arrData[1])
                 yDiff = (oClient.posY - arrData[2])
                 sax = arrData[3]
